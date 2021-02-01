@@ -1,17 +1,35 @@
 import React, { Component } from "react";
-import { View, Text } from "react-native";
-import { Header } from "react-native-elements";
+import { View, SafeAreaView, ScrollView, Dimensions } from "react-native";
 import Category from "./Category/Category";
 
+const { height } = Dimensions.get('window');
+
 export class Main extends Component {
+
+  state = {
+    screenHeight: 0,
+  };
+
+  onContentSizeChange = (contentWidth: any, contentHeight: any) => {
+    this.setState({ screenHeight: contentHeight });
+  };
+
   render() {
+    const scrollEnabled = this.state.screenHeight > height;
     return (
-      <View style={{ flex: 0 }}>
-        <Category name="Fitness" color='#2A9D8F' />
-        <Category name="Books" color='#E9C46A' />
-        <Category name="Lifestyle" color='#F4A261' />
-        <Category name="Health" color='#E76F51' />
-      </View>
+      <SafeAreaView>
+        <ScrollView
+          scrollEnabled={scrollEnabled}
+          onContentSizeChange={this.onContentSizeChange}
+        >
+          <View style={{ flex: 1 }}>
+            <Category name="Fitness" color="#2A9D8F" />
+            <Category name="Books" color="#E9C46A" />
+            <Category name="Lifestyle" color="#F4A261" />
+            <Category name="Health" color="#E76F51" />
+          </View>
+        </ScrollView>
+      </SafeAreaView>
     );
   }
 }

@@ -4,6 +4,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { View, Text, StyleSheet } from "react-native";
 
 import MainScreen from "./components/Main";
+import ContainerScreen from "./components/ScrollableContainer/ScrollableContainer";
 
 const Stack = createStackNavigator();
 
@@ -17,9 +18,9 @@ export class App extends Component {
   render() {
     return (
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="Main">
+        <Stack.Navigator initialRouteName="ScrollableContainer">
           <Stack.Screen
-            name="Main"
+            name="Goal Setter"
             component={MainScreen}
             options={{
               headerShown: true,

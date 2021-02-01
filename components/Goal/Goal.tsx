@@ -3,14 +3,17 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableHighlight,
   Animated,
 } from "react-native";
-import { Card, ListItem, Button, Icon, Avatar } from "react-native-elements";
 import { RectButton } from "react-native-gesture-handler";
 import Swipeable from "react-native-gesture-handler/Swipeable";
 
-export interface GoalProps {}
+export interface GoalProps {
+  title: string,
+  goalValue: number,
+  currentProgress: number,
+  startValue: number
+}
 
 export interface GoalState {}
 
@@ -20,6 +23,7 @@ const styles = StyleSheet.create({
     color: "black",
     fontSize: 14,
     textAlign: "center",
+    height: 40
   },
   leftAction: {
     flex: 1,
@@ -27,13 +31,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
 });
-
-const list = [
-  {
-    name: "Run 5K in 20 mins",
-    subtitle: "22 / 20",
-  },
-];
 
 export class Goal extends React.Component<GoalProps, GoalState> {
   constructor(props: GoalProps) {
@@ -44,21 +41,9 @@ export class Goal extends React.Component<GoalProps, GoalState> {
     // this.GoalStyle = this.GoalStyle.bind(this);
   }
   renderLeftActions = (progress: any, dragX: any) => {
-    const trans = dragX.interpolate({
-      inputRange: [0, 50, 100, 101],
-      outputRange: [-20, 0, 0, 1],
-    });
     return (
       <RectButton style={styles.leftAction}>
-        <Animated.Text
-          style={[
-            styles.leftAction,
-            {
-              transform: [{ translateX: trans }],
-            },
-          ]}
-        >
-        </Animated.Text>
+
       </RectButton>
     );
   };
@@ -66,8 +51,9 @@ export class Goal extends React.Component<GoalProps, GoalState> {
   render() {
     return (
       <Swipeable renderLeftActions={this.renderLeftActions}>
-        <View>
-          <Text>Run 5K in 20 mins</Text>
+        <View style={styles.GoalText}>
+          <Text>{this.props.title}</Text>
+          
         </View>
       </Swipeable>
     );

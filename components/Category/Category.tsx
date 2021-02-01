@@ -46,8 +46,10 @@ export class Category extends React.Component<CategoryProps, CategoryState> {
           <Text style={styles.categoryText}>{this.props.name}</Text>
         </View>
 
-        {/* {this.props.name == "Fitness" ? <Goal /> : <div />}    */}
-        <Goal />
+        <Goal title="Run 5K in 20 minutes" startValue={25} goalValue={20} currentProgress={22}/>
+        <Goal title="Do 50 pressups in one set" startValue={30} goalValue={50} currentProgress={35}/>
+        <Goal title="Bench 100kg" startValue={59} goalValue={100} currentProgress={59}/>
+        <Goal title="Squat 120kg" startValue={33} goalValue={120} currentProgress={120}/>
       </View>
     );
   }
