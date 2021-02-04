@@ -1,11 +1,11 @@
 import React, { Component } from "react";
-import { View, SafeAreaView, ScrollView, Dimensions } from "react-native";
+import { View, SafeAreaView, ScrollView, Dimensions, StatusBar } from "react-native";
+import { Appbar } from "react-native-paper";
 import Category from "./Category/Category";
 
-const { height } = Dimensions.get('window');
+const { height } = Dimensions.get("window");
 
 export class Main extends Component {
-
   state = {
     screenHeight: 0,
   };
@@ -17,7 +17,10 @@ export class Main extends Component {
   render() {
     const scrollEnabled = this.state.screenHeight > height;
     return (
+      
+      
       <SafeAreaView>
+        <StatusBar barStyle = "light-content" hidden = {false} backgroundColor = "#1e3842" translucent = {true}/>
         <ScrollView
           scrollEnabled={scrollEnabled}
           onContentSizeChange={this.onContentSizeChange}

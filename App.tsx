@@ -4,7 +4,6 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { View, Text, StyleSheet } from "react-native";
 
 import MainScreen from "./components/Main";
-import ContainerScreen from "./components/ScrollableContainer/ScrollableContainer";
 
 const Stack = createStackNavigator();
 
@@ -14,23 +13,31 @@ const styles = StyleSheet.create({
   },
 });
 
+
 export class App extends Component {
+
+
   render() {
     return (
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="ScrollableContainer">
+        <Stack.Navigator initialRouteName="ScrollableContainer" mode={'modal'} headerMode={'float'}> 
           <Stack.Screen
             name="Goal Setter"
             component={MainScreen}
+            
             options={{
               headerShown: true,
               headerStyle: {
                 backgroundColor: "#264653",
-                marginBottom: 0
+                topBar: {
+                  animate: true,
+                }
               },
+              headerTintColor: 'white',
               headerTitleStyle: {
                 color: 'white',
               },
+              
             }}
           />
         </Stack.Navigator>
