@@ -6,11 +6,14 @@ import { ProgressBar, TextInput } from "react-native-paper";
 
 export interface GoalProps {
   title: string;
+  id: number;
   goalValue: number;
   currentProgress: number;
   startValue: number;
   categoryColor: string;
-  overrideExpandedSection: boolean;
+  theOpenGoal: boolean;
+
+  closeGoals: (goalId: number) => void;
 }
 
 export interface GoalState {
@@ -35,7 +38,7 @@ const styles = StyleSheet.create({
   },
   ExpandedArea: {
     marginTop: 26,
-    flexDirection: 'row' 
+    flexDirection: "row",
   },
   ExpandedAreaText: {
     fontSize: 16,
@@ -49,7 +52,7 @@ export class Goal extends React.Component<GoalProps, GoalState> {
     this.state = {
       progressPercentage: 0,
       expanded: false,
-      currentProgressUpdated: undefined
+      currentProgressUpdated: undefined,
     };
   }
   renderLeftActions = (progress: any, dragX: any) => {
@@ -84,6 +87,9 @@ export class Goal extends React.Component<GoalProps, GoalState> {
 
   componentDidUpdate(prevProps: any, prevState: any) {
     if (this.props != prevProps) {
+      if(this.props.theOpenGoal == false) {
+        this.setState({ expanded: false });
+      }
       var range = this.props.goalValue - this.props.startValue;
       var actProgress = this.props.currentProgress - this.props.startValue;
       var perc = actProgress / range / 1;
@@ -103,8 +109,10 @@ export class Goal extends React.Component<GoalProps, GoalState> {
       <Swipeable renderLeftActions={this.renderLeftActions}>
         <TouchableOpacity
           onPress={() => {
+            this.props.closeGoals(this.props.id);
             LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
             this.setState({ expanded: !this.state.expanded });
+            
           }}
         >
           <View style={this.goalStyle()}>
@@ -120,22 +128,33 @@ export class Goal extends React.Component<GoalProps, GoalState> {
             {this.state.expanded ? (
               <View style={styles.ExpandedArea}>
                 <Text style={styles.ExpandedAreaText}>
-                  Started: {this.props.startValue}  {"  "} Goal: {this.props.goalValue}{"    "}
-                  Currently: {" "}
-                  </Text>
-                  
-                  <TextInput
-                    placeholder={this.props.currentProgress.toString()}
-                    style={{ height: 25, width: 45, marginBottom: 0, backgroundColor: '#F0F0F0' }}
-                    onChangeText={(text) => this.onChangeText(text)}
-                    value={this.state.currentProgressUpdated}
-                    keyboardType = 'numeric'
-                    selectionColor = {this.props.categoryColor}
-                    underlineColor = {this.props.categoryColor}
-                    underlineColorAndroid = {this.props.categoryColor}
-                  />
-                  
-                
+                  Started: {this.props.startValue} {"  "} Goal:{" "}
+                  {this.props.goalValue}
+                  {"    "}
+                  Currently:{" "}
+                </Text>
+
+                <TextInput
+                  placeholder={this.props.currentProgress.toString()}
+                  style={{
+                    height: 25,
+                    width: 45,
+                    marginBottom: 0,
+                    backgroundColor: "#F0F0F0",
+                  }}
+                  onChangeText={(text) => this.onChangeText(text)}
+                  value={this.state.currentProgressUpdated}
+                  keyboardType="numeric"
+                  selectionColor={this.props.categoryColor}
+                  underlineColor={this.props.categoryColor}
+                  underlineColorAndroid={this.props.categoryColor}
+                  theme={{
+                    colors: {
+                      placeholder: "#C0C0C0",
+                      primary: this.props.categoryColor,
+                    },
+                  }}
+                />
               </View>
             ) : (
               <View />
