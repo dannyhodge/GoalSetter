@@ -13,9 +13,7 @@ const styles = StyleSheet.create({
   },
 });
 
-
 export class App extends Component {
-
 
   render() {
     return (
@@ -28,10 +26,7 @@ export class App extends Component {
             options={{
               headerShown: true,
               headerStyle: {
-                backgroundColor: "#264653",
-                topBar: {
-                  animate: true,
-                }
+                backgroundColor: "#264653"
               },
               headerTintColor: 'white',
               headerTitleStyle: {
