@@ -1,8 +1,16 @@
+import * as SQLite from "expo-sqlite";
 import React from "react";
-import { View, Text, StyleSheet, LayoutAnimation } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  LayoutAnimation,
+  Animated,
+  Alert,
+} from "react-native";
 import { RectButton, TouchableOpacity } from "react-native-gesture-handler";
 import Swipeable from "react-native-gesture-handler/Swipeable";
-import { ProgressBar, TextInput } from "react-native-paper";
+import { Button, ProgressBar, TextInput } from "react-native-paper";
 
 export interface GoalProps {
   title: string;
@@ -14,12 +22,14 @@ export interface GoalProps {
   theOpenGoal: boolean;
 
   closeGoals: (goalId: number) => void;
+  updateDB: () => void;
 }
 
 export interface GoalState {
   progressPercentage: number;
   expanded: boolean;
   currentProgressUpdated: string | undefined;
+  dummy: boolean;
 }
 
 const styles = StyleSheet.create({
@@ -37,29 +47,83 @@ const styles = StyleSheet.create({
     fontSize: 17,
   },
   ExpandedArea: {
-    marginTop: 26,
-    flexDirection: "row",
+    marginTop: 16,
+    flexDirection: "column",
   },
   ExpandedAreaText: {
     fontSize: 16,
   },
+  ProgressRow: {
+    flexDirection: "row",
+  },
 });
 
+const db = SQLite.openDatabase("db.db");
+
+let row: Array<any> = [];
+let prevOpenedRow: any;
+
 export class Goal extends React.Component<GoalProps, GoalState> {
+
+  closeSwipable: React.RefObject<string> = React.createRef();
+  
   constructor(props: GoalProps) {
     super(props);
+    
+    this.closeSwipable = React.createRef();
 
     this.state = {
       progressPercentage: 0,
       expanded: false,
       currentProgressUpdated: undefined,
+      dummy: false,
     };
+    
   }
+
   renderLeftActions = (progress: any, dragX: any) => {
     return (
-      <RectButton style={styles.leftAction}>
-        <Text>Delete?</Text>
+      <RectButton style={styles.leftAction} >
+        <Text></Text>
       </RectButton>
+    );
+  };  
+
+  closeRow = () => {
+		prevOpenedRow.close();
+}
+
+  onSwipeGoal = () => {
+    Alert.alert(
+      "Delete Goal",
+      "Are you sure you want to delete this goal?",
+      [
+        {
+          text: "Cancel",
+          onPress: () => {
+            this.setState({ dummy: true });
+            this.closeRow();
+          },
+          style: "cancel",
+        },
+        {
+          text: "OK",
+          onPress: () => {
+            
+            console.log("this is me id: " + this.props.id);
+            db.transaction((tx: { executeSql: (arg0: string) => void }) => {
+              tx.executeSql(
+                "DELETE FROM goals WHERE id = " + this.props.id + ";"
+              );
+            });
+            this.setState({ dummy: true });
+            this.closeRow();
+            this.props.updateDB();
+           
+          },
+        },
+      ],
+      { cancelable: false }
     );
   };
 
@@ -69,7 +133,7 @@ export class Goal extends React.Component<GoalProps, GoalState> {
       color: "black",
       fontSize: 18,
       textAlign: "center",
-      height: this.state.expanded ? 120 : 60,
+      height: this.state.expanded ? 125 : 70, 
       width: "100%",
       paddingLeft: 20,
     };
@@ -87,12 +151,12 @@ export class Goal extends React.Component<GoalProps, GoalState> {
 
   componentDidUpdate(prevProps: any, prevState: any) {
     if (this.props != prevProps) {
-      if(this.props.theOpenGoal == false) {
+      if (this.props.theOpenGoal == false) {
         this.setState({ expanded: false });
       }
       var range = this.props.goalValue - this.props.startValue;
       var actProgress = this.props.currentProgress - this.props.startValue;
-      var perc = actProgress / range / 1;
+      var perc = actProgress / range;
 
       this.setState({
         progressPercentage: perc,
@@ -106,40 +170,49 @@ export class Goal extends React.Component<GoalProps, GoalState> {
 
   render() {
     return (
-      <Swipeable renderLeftActions={this.renderLeftActions}>
-        <TouchableOpacity
-          onPress={() => {
-            this.props.closeGoals(this.props.id);
-            LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
-            this.setState({ expanded: !this.state.expanded });
-            
-          }}
-        >
-          <View style={this.goalStyle()}>
+      <Swipeable
+        renderLeftActions={this.renderLeftActions}
+        onSwipeableLeftOpen={this.onSwipeGoal}
+        ref={ref => prevOpenedRow = ref}
+        onSwipeableOpen={this.closeRow} 
+      >
+        <View style={this.goalStyle()}>
+          <TouchableOpacity
+            onPress={() => {
+              this.props.closeGoals(this.props.id);
+              LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
+              this.setState({ expanded: !this.state.expanded });
+            }}
+          >
             <Text style={styles.GoalText}>{this.props.title}</Text>
 
-            <ProgressBar
-              progress={this.state.progressPercentage}
-              visible={true}
-              color={"grey"}
-              style={{ width: "75%" }}
-            />
+            <View style={styles.ProgressRow}>
+              <Text>{this.props.startValue}</Text>
 
-            {this.state.expanded ? (
-              <View style={styles.ExpandedArea}>
-                <Text style={styles.ExpandedAreaText}>
-                  Started: {this.props.startValue} {"  "} Goal:{" "}
-                  {this.props.goalValue}
-                  {"    "}
-                  Currently:{" "}
-                </Text>
+              <View style={{ width: "70%" }}>
+                <ProgressBar
+                  progress={this.state.progressPercentage}
+                  visible={true}
+                  color={"grey"}
+                  style={{ width: "100%", marginTop: 8, marginLeft: 10 }}
+                />
+              </View>
 
+              <Text style={{ marginLeft: 20 }}>{this.props.goalValue}</Text>
+            </View>
+          </TouchableOpacity>
+          {this.state.expanded ? (
+            <View style={styles.ExpandedArea}>
+              <View style={{ flexDirection: "row" }}>
                 <TextInput
-                  placeholder={this.props.currentProgress.toString()}
+                  placeholder={
+                    "Progress (was " +
+                    this.props.currentProgress.toString() +
+                    ")"
+                  }
                   style={{
-                    height: 25,
-                    width: 45,
-                    marginBottom: 0,
+                    height: 35,
+                    width: 200,
                     backgroundColor: "#F0F0F0",
                   }}
                   onChangeText={(text) => this.onChangeText(text)}
@@ -155,12 +228,21 @@ export class Goal extends React.Component<GoalProps, GoalState> {
                     },
                   }}
                 />
+                <Button
+                  icon="check"
+                  mode="contained"
+                  compact={true}
+                  style={{ backgroundColor: "#264653", marginLeft: 7 }}
+                  onPress={() => console.log("Pressed")}
+                >
+                  {" "}
+                </Button>
               </View>
-            ) : (
-              <View />
-            )}
-          </View>
-        </TouchableOpacity>
+            </View>
+          ) : (
+            <View />
+          )}
+        </View>
       </Swipeable>
     );
   }

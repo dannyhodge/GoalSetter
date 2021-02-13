@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, Platform, UIManager } from "react-native";
+import { View, Text, StyleSheet, Platform, UIManager, LayoutAnimation } from "react-native";
 import { goal } from "../../types/Goal";
 import Goal from "../Goal/Goal";
 
@@ -9,9 +9,12 @@ export interface CategoryProps {
   goals: goal[];
   closeGoals: (goalId: number) => void;
   expandedGoal: number | null;
+
+  updateDB: () => void;
 }
 
-export interface CategoryState {}
+export interface CategoryState {
+}
 
 const styles = StyleSheet.create({
   categoryText: {
@@ -33,7 +36,8 @@ export class Category extends React.Component<CategoryProps, CategoryState> {
   constructor(props: CategoryProps) {
     super(props);
 
-    this.state = {};
+    this.state = {
+    };
 
     this.categoryStyle = this.categoryStyle.bind(this);
   }
@@ -51,14 +55,21 @@ export class Category extends React.Component<CategoryProps, CategoryState> {
     };
   }
 
+  componentDidUpdate(prevProps: any, prevState: any) {
+    if (this.props != prevProps) {
+      
+    }
+  }
+
   render() {
     return (
       <View style={{ width: "100%" }}>
         <View style={this.categoryStyle()}>
           <Text style={styles.categoryText}>{this.props.name}</Text>
         </View>
-
+        
         {this.props.goals.map((value, index) => {
+        //  console.log("goal: " + value.title);
           return (
             <Goal
               key={index}
@@ -70,6 +81,7 @@ export class Category extends React.Component<CategoryProps, CategoryState> {
               closeGoals={this.props.closeGoals}
               theOpenGoal={value.id == this.props.expandedGoal}
               id={value.id}
+              updateDB={this.props.updateDB}              
             />
           );
         })}
