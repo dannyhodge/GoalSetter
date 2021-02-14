@@ -1,23 +1,15 @@
 import React, { Component } from "react";
-import {
-  View,
-  SafeAreaView,
-  ScrollView,
-  Dimensions,
-  StatusBar,
-  LayoutAnimation,
-} from "react-native";
+import { View, SafeAreaView, ScrollView, StatusBar, Text } from "react-native";
 import Category from "./Category/Category";
-import { ReturnCategoryData, ReturnGoalData } from "../helpers/FakeData";
 import { category } from "../types/Category";
 import { goal } from "../types/Goal";
-import { FAB, Portal, Provider } from "react-native-paper";
+import { Button, FAB, Portal, Provider, TextInput } from "react-native-paper";
 import * as SQLite from "expo-sqlite";
+import { Dialog } from "react-native-simple-dialogs";
 
 const db = SQLite.openDatabase("db.db");
 
 const colours: string[] = ["#2A9D8F", "#E9C46A", "#F4A261", "#E76F51"];
-let currentColourId = 0;
 
 export interface MainState {
   categories: category[];
@@ -25,6 +17,8 @@ export interface MainState {
   fabOpen: boolean;
   screenHeight: number;
   expandedGoal: number | null;
+  dialogVisible: boolean;
+  newCategoryName: string | undefined;
 }
 
 export class Main extends Component<{}, MainState> {
@@ -37,6 +31,8 @@ export class Main extends Component<{}, MainState> {
       fabOpen: false,
       screenHeight: 0,
       expandedGoal: null,
+      dialogVisible: false,
+      newCategoryName: undefined,
     };
 
     this.changeExpandedGoal = this.changeExpandedGoal.bind(this);
@@ -84,7 +80,7 @@ export class Main extends Component<{}, MainState> {
           };
           goals[i] = goal;
         }
-   //     console.log(goals);
+        //     console.log(goals);
         this.setState({
           goals,
         });
@@ -111,7 +107,7 @@ export class Main extends Component<{}, MainState> {
       // for (var i = 3; i < 10; i++) {
       //   tx.executeSql(
       //     "INSERT INTO goals (title,dateAdded,category_id,start_value,end_value,current_value) VALUES ('" +
-      //       i + 
+      //       i +
       //       " lunges in one set',DateTIME('now', '-3 day'),1,20,100,35); "
       //   );
       //   tx.executeSql(
@@ -125,13 +121,33 @@ export class Main extends Component<{}, MainState> {
     this.updateDbData();
   }
 
-  componentDidUpdate() {
-    currentColourId = 0;
-  }
+  componentDidUpdate() {}
+
+  onChangeCategoryText = (text: string) => {
+    this.setState({ newCategoryName: text });
+  };
 
   changeExpandedGoal(goalId: number) {
     this.setState({ expandedGoal: goalId });
   }
+
+  createCategory = () => {
+    if (this.state.newCategoryName != null) {
+      db.transaction((tx) => {
+        tx.executeSql(
+          "INSERT INTO categories (title,dateAdded) VALUES ('" +
+            this.state.newCategoryName +
+            "', DATETIME('now')); "
+        );
+      });
+      this.updateDbData();
+      this.setState({
+        dialogVisible: false,
+        fabOpen: false,
+        newCategoryName: undefined,
+      });
+    }
+  };
 
   render() {
     const categories: category[] = this.state.categories;
@@ -155,6 +171,7 @@ export class Main extends Component<{}, MainState> {
               .map((value, index) => {
                 return (
                   <Category
+                    id={value.id}
                     name={value.title}
                     color={this.getColourCode(index)}
                     goals={goals
@@ -170,13 +187,61 @@ export class Main extends Component<{}, MainState> {
               })}
           </View>
         </ScrollView>
+        <Dialog
+          titleStyle={{ textAlign: "center" }}
+          contentStyle={{ alignItems: "center" }}
+          visible={this.state.dialogVisible}
+          title="Create new Category"
+          onTouchOutside={() => this.setState({ dialogVisible: false })}
+        >
+          <View>
+            <View style={{ flexDirection: "row" }}>
+              <TextInput
+                placeholder={"Category name"}
+                style={{
+                  height: 35,
+                  width: 200,
+                  backgroundColor: "#F0F0F0",
+                }}
+                onChangeText={(text) => this.onChangeCategoryText(text)}
+                value={this.state.newCategoryName}
+                selectionColor={"#264653"}
+                underlineColor={"#264653"}
+                underlineColorAndroid={"#264653"}
+                theme={{
+                  colors: {
+                    placeholder: "#C0C0C0",
+                    primary: "#264653",
+                  },
+                }}
+              />
+              <Button
+                icon="check"
+                mode="contained"
+                compact={true}
+                style={{ backgroundColor: "#264653", marginLeft: 7 }}
+                onPress={() => this.createCategory()}
+              >
+                {" "}
+              </Button>
+            </View>
+            <Button
+              mode="text"
+              onPress={() => this.setState({ dialogVisible: false, fabOpen: false })}
+              color={"#264653"}
+              style={{marginTop: 20}}
+            >
+              Cancel
+            </Button>
+          </View>
+        </Dialog>
         <Provider>
           <Portal>
             <FAB.Group
               color={"white"}
               visible={true}
               open={this.state.fabOpen}
-              icon={"plus"}
+              icon={this.state.fabOpen ? "minus" : "plus"}
               actions={[
                 {
                   icon: "plus",
@@ -186,7 +251,9 @@ export class Main extends Component<{}, MainState> {
                 {
                   icon: "plus",
                   label: "Add Category",
-                  onPress: () => console.log("Pressed add"),
+                  onPress: () => {
+                    this.setState({ dialogVisible: true });
+                  },
                 },
               ]}
               onStateChange={() => console.log("state change")}
