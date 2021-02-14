@@ -5,7 +5,6 @@ import {
   Text,
   StyleSheet,
   LayoutAnimation,
-  Animated,
   Alert,
 } from "react-native";
 import { RectButton, TouchableOpacity } from "react-native-gesture-handler";
@@ -60,7 +59,6 @@ const styles = StyleSheet.create({
 
 const db = SQLite.openDatabase("db.db");
 
-let row: Array<any> = [];
 let prevOpenedRow: any;
 
 export class Goal extends React.Component<GoalProps, GoalState> {
@@ -109,8 +107,6 @@ export class Goal extends React.Component<GoalProps, GoalState> {
         {
           text: "OK",
           onPress: () => {
-            
-            console.log("this is me id: " + this.props.id);
             db.transaction((tx: { executeSql: (arg0: string) => void }) => {
               tx.executeSql(
                 "DELETE FROM goals WHERE id = " + this.props.id + ";"
@@ -218,13 +214,13 @@ export class Goal extends React.Component<GoalProps, GoalState> {
                   onChangeText={(text) => this.onChangeText(text)}
                   value={this.state.currentProgressUpdated}
                   keyboardType="numeric"
-                  selectionColor={this.props.categoryColor}
-                  underlineColor={this.props.categoryColor}
-                  underlineColorAndroid={this.props.categoryColor}
+                  selectionColor={"#264653"}
+                  underlineColor={"#264653"}
+                  underlineColorAndroid={"#264653"}
                   theme={{
                     colors: {
                       placeholder: "#C0C0C0",
-                      primary: this.props.categoryColor,
+                      primary: "#264653",
                     },
                   }}
                 />
