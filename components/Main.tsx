@@ -98,7 +98,6 @@ export class Main extends Component<{}, MainState> {
         this.setState({
           goals,
         });
-        console.log(goals);
  
       });
     });
@@ -258,14 +257,16 @@ export class Main extends Component<{}, MainState> {
                 {
                   icon: "plus",
                   label: "Add Goal",
-                  onPress: () => this.setState({ goalDialogVisible: true }),
+                  onPress: () => this.setState({ goalDialogVisible: this.state.categories.length > 0 ? true : false}),
+                  style: this.state.categories.length > 0 ? { backgroundColor: 'white' } : { backgroundColor: '#A0A0A0' }
+                  
                 },
                 {
                   icon: "plus",
                   label: "Add Category",
                   onPress: () => {
                     this.setState({ categoryDialogVisible: true });
-                  },
+                  }
                 },
               ]}
               onStateChange={() => console.log("state change")}

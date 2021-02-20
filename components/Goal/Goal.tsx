@@ -135,9 +135,12 @@ export class Goal extends React.Component<GoalProps, GoalState> {
     };
   }
 
-  componentDidMount() {
-    var range = this.props.goalValue - this.props.startValue;
-    var actProgress = this.props.currentProgress - this.props.startValue;
+  updateProgressPercentage = () => {
+    var startVal = this.props.goalValue > this.props.startValue ? this.props.startValue : this.props.goalValue;
+    var goalVal = this.props.goalValue < this.props.startValue ? this.props.startValue : this.props.goalValue;
+
+    var range = goalVal - startVal;
+    var actProgress = this.props.currentProgress - startVal;
     var perc = actProgress / range / 1;
 
     this.setState({
@@ -145,23 +148,31 @@ export class Goal extends React.Component<GoalProps, GoalState> {
     });
   }
 
+  componentDidMount() {
+    this.updateProgressPercentage();
+  }
+
   componentDidUpdate(prevProps: any, prevState: any) {
     if (this.props != prevProps) {
       if (this.props.theOpenGoal == false) {
         this.setState({ expanded: false });
       }
-      var range = this.props.goalValue - this.props.startValue;
-      var actProgress = this.props.currentProgress - this.props.startValue;
-      var perc = actProgress / range;
-
-      this.setState({
-        progressPercentage: perc,
-      });
+      this.updateProgressPercentage();
     }
   }
 
-  onChangeText(text: string) {
-    console.log(text);
+  onChangeProgress(text: string) {
+    this.setState({ currentProgressUpdated: text })
+  }
+
+  updateProgress = () => {
+    db.transaction((tx: { executeSql: (arg0: string) => void }) => {
+      tx.executeSql(
+        "UPDATE goals SET current_value = " + this.state.currentProgressUpdated + " WHERE id = " + this.props.id + ";"
+      );
+    });
+    this.props.updateDB();
+   
   }
 
   render() {
@@ -211,7 +222,7 @@ export class Goal extends React.Component<GoalProps, GoalState> {
                     width: 200,
                     backgroundColor: "#F0F0F0",
                   }}
-                  onChangeText={(text) => this.onChangeText(text)}
+                  onChangeText={(text) => this.onChangeProgress(text)}
                   value={this.state.currentProgressUpdated}
                   keyboardType="numeric"
                   selectionColor={"#264653"}
@@ -229,7 +240,7 @@ export class Goal extends React.Component<GoalProps, GoalState> {
                   mode="contained"
                   compact={true}
                   style={{ backgroundColor: "#264653", marginLeft: 7 }}
-                  onPress={() => console.log("Pressed")}
+                  onPress={() => this.updateProgress() }
                 >
                   {" "}
                 </Button>

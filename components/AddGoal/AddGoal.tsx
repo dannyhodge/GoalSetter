@@ -53,12 +53,11 @@ export class AddGoal extends Component<AddGoalProps, AddGoalState> {
   createGoal = () => {
     if (this.state.newGoalName != null) {
       db.transaction((tx) => {
-        console.log('categoryid');
-        console.log(this.props.categories[this.state.selectedCategory].id);
+        var smallestVal = this.state.newStartValue > this.state.newGoalValue ? this.state.newGoalValue : this.state.newStartValue;
         tx.executeSql(
           "INSERT INTO goals (title,dateAdded,category_id,start_value,end_value,current_value) VALUES ('" +
             this.state.newGoalName +
-            "', DATETIME('now'), " + this.props.categories[this.state.selectedCategory].id + ", " + this.state.newStartValue + ", " + this.state.newGoalValue + ", " + this.state.newStartValue + "); "
+            "', DATETIME('now'), " + this.props.categories[this.state.selectedCategory].id + ", " + this.state.newStartValue + ", " + this.state.newGoalValue + ", " + smallestVal + "); "
         );
       });
       this.props.updateDbData(); 
