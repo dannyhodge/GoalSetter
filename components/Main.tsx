@@ -1,11 +1,19 @@
 import React, { Component } from "react";
-import { View, SafeAreaView, ScrollView, StatusBar, Text } from "react-native";
+import {
+  View,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  Text,
+  Dimensions,
+} from "react-native";
 import Category from "./Category/Category";
 import { category } from "../types/Category";
 import { goal } from "../types/Goal";
 import { Button, FAB, Portal, Provider, TextInput } from "react-native-paper";
 import * as SQLite from "expo-sqlite";
 import { Dialog } from "react-native-simple-dialogs";
+import AddGoal from "./AddGoal/AddGoal";
 
 const db = SQLite.openDatabase("db.db");
 
@@ -17,7 +25,8 @@ export interface MainState {
   fabOpen: boolean;
   screenHeight: number;
   expandedGoal: number | null;
-  dialogVisible: boolean;
+  categoryDialogVisible: boolean;
+  goalDialogVisible: boolean;
   newCategoryName: string | undefined;
 }
 
@@ -31,7 +40,8 @@ export class Main extends Component<{}, MainState> {
       fabOpen: false,
       screenHeight: 0,
       expandedGoal: null,
-      dialogVisible: false,
+      categoryDialogVisible: false,
+      goalDialogVisible: false,
       newCategoryName: undefined,
     };
 
@@ -39,7 +49,11 @@ export class Main extends Component<{}, MainState> {
   }
 
   onContentSizeChange = (contentWidth: any, contentHeight: any) => {
-    this.setState({ screenHeight: contentHeight });
+    const screenHeight = Dimensions.get("screen").height - 120;
+
+    contentHeight > screenHeight
+      ? this.setState({ screenHeight: contentHeight })
+      : this.setState({ screenHeight });
   };
 
   getColourCode = (index: number) => {
@@ -63,6 +77,7 @@ export class Main extends Component<{}, MainState> {
         this.setState({
           categories,
         });
+
       });
 
       tx.executeSql("select * from goals", [], (_, { rows }) => {
@@ -80,10 +95,11 @@ export class Main extends Component<{}, MainState> {
           };
           goals[i] = goal;
         }
-        //     console.log(goals);
         this.setState({
           goals,
         });
+        console.log(goals);
+ 
       });
     });
   };
@@ -95,27 +111,6 @@ export class Main extends Component<{}, MainState> {
       tx.executeSql(
         "create table if not exists goals (id integer primary key not null, title text, dateAdded DATETIME, category_id INTEGER, start_value INTEGER, end_value INTEGER, current_value INTEGER, FOREIGN KEY (category_id) REFERENCES categories (id) ON DELETE CASCADE ON UPDATE NO ACTION);"
       );
-    });
-
-    db.transaction((tx) => {
-      // tx.executeSql(
-      //   "INSERT INTO categories (title,dateAdded) VALUES ('Fitness', DATETIME('now', '-1 day')); "
-      // );
-      // tx.executeSql(
-      //   "INSERT INTO categories (title,dateAdded) VALUES ('Health', DATETIME('now')); "
-      // );
-      // for (var i = 3; i < 10; i++) {
-      //   tx.executeSql(
-      //     "INSERT INTO goals (title,dateAdded,category_id,start_value,end_value,current_value) VALUES ('" +
-      //       i +
-      //       " lunges in one set',DateTIME('now', '-3 day'),1,20,100,35); "
-      //   );
-      //   tx.executeSql(
-      //     "INSERT INTO goals (title,dateAdded,category_id,start_value,end_value,current_value) VALUES ('Drink " +
-      //       i +
-      //       " water every day',DateTIME('now', '-3 day'),2,0,365,0); "
-      //   );
-      // }
     });
 
     this.updateDbData();
@@ -131,6 +126,10 @@ export class Main extends Component<{}, MainState> {
     this.setState({ expandedGoal: goalId });
   }
 
+  closeAllOpenMenus = () => {
+    this.setState({ fabOpen: false, categoryDialogVisible: false, goalDialogVisible: false });
+  }
+
   createCategory = () => {
     if (this.state.newCategoryName != null) {
       db.transaction((tx) => {
@@ -139,13 +138,14 @@ export class Main extends Component<{}, MainState> {
             this.state.newCategoryName +
             "', DATETIME('now')); "
         );
-      });
+   
       this.updateDbData();
       this.setState({
-        dialogVisible: false,
+        categoryDialogVisible: false,
         fabOpen: false,
         newCategoryName: undefined,
       });
+    });
     }
   };
 
@@ -162,6 +162,7 @@ export class Main extends Component<{}, MainState> {
           translucent={true}
         />
         <ScrollView
+          contentContainerStyle={[{ minHeight: this.state.screenHeight }]}
           scrollEnabled={true}
           onContentSizeChange={this.onContentSizeChange}
         >
@@ -190,9 +191,9 @@ export class Main extends Component<{}, MainState> {
         <Dialog
           titleStyle={{ textAlign: "center" }}
           contentStyle={{ alignItems: "center" }}
-          visible={this.state.dialogVisible}
+          visible={this.state.categoryDialogVisible}
           title="Create new Category"
-          onTouchOutside={() => this.setState({ dialogVisible: false })}
+          onTouchOutside={() => this.setState({ categoryDialogVisible: false })}
         >
           <View>
             <View style={{ flexDirection: "row" }}>
@@ -227,13 +228,24 @@ export class Main extends Component<{}, MainState> {
             </View>
             <Button
               mode="text"
-              onPress={() => this.setState({ dialogVisible: false, fabOpen: false })}
+              onPress={() =>
+                this.setState({ categoryDialogVisible: false, fabOpen: false })
+              }
               color={"#264653"}
-              style={{marginTop: 20}}
+              style={{ marginTop: 20 }}
             >
               Cancel
             </Button>
           </View>
+        </Dialog>
+        <Dialog
+          titleStyle={{ textAlign: "center" }}
+          contentStyle={{ alignItems: "center" }}
+          visible={this.state.goalDialogVisible}
+          title="Create new Goal"
+          onTouchOutside={() => this.setState({ goalDialogVisible: false })}
+        >
+          <AddGoal categories={this.state.categories} updateDbData={this.updateDbData} closeAllOpenMenus={this.closeAllOpenMenus}/>
         </Dialog>
         <Provider>
           <Portal>
@@ -246,13 +258,13 @@ export class Main extends Component<{}, MainState> {
                 {
                   icon: "plus",
                   label: "Add Goal",
-                  onPress: () => console.log("Pressed add"),
+                  onPress: () => this.setState({ goalDialogVisible: true }),
                 },
                 {
                   icon: "plus",
                   label: "Add Category",
                   onPress: () => {
-                    this.setState({ dialogVisible: true });
+                    this.setState({ categoryDialogVisible: true });
                   },
                 },
               ]}
