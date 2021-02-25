@@ -50,8 +50,6 @@ export class Category extends React.Component<CategoryProps, CategoryState> {
     super(props);
 
     this.state = {};
-
-    this.categoryStyle = this.categoryStyle.bind(this);
   }
 
   categoryStyle() {
@@ -63,7 +61,7 @@ export class Category extends React.Component<CategoryProps, CategoryState> {
       shadowOffset: { width: 0, height: 1 },
       shadowOpacity: 0.25,
       shadowRadius: 3.84,
-      elevation: 2,
+      elevation: 4,
     };
   }
 
@@ -83,6 +81,9 @@ export class Category extends React.Component<CategoryProps, CategoryState> {
           text: "OK",
           onPress: () => {
             db.transaction((tx: { executeSql: (arg0: string) => void }) => {
+              tx.executeSql(
+                "DELETE FROM goals WHERE category_id = " + this.props.id + ";"
+              );
               tx.executeSql(
                 "DELETE FROM categories WHERE id = " + this.props.id + ";"
               );
@@ -133,6 +134,9 @@ export class Category extends React.Component<CategoryProps, CategoryState> {
             />
           );
         })}
+
+        {this.props.goals.length == 0 ? 
+        <View style={{height: 10, backgroundColor: 'white'}} /> : <View />}
       </View>
     );
   }
