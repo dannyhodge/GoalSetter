@@ -57,7 +57,7 @@ export class AddGoal extends Component<AddGoalProps, AddGoalState> {
         tx.executeSql(
           "INSERT INTO goals (title,dateAdded,category_id,start_value,end_value,current_value) VALUES ('" +
             this.state.newGoalName +
-            "', DATETIME('now'), " + this.props.categories[this.state.selectedCategory].id + ", " + this.state.newStartValue + ", " + this.state.newGoalValue + ", " + smallestVal + "); "
+            "', DATETIME('now'), " + this.props.categories[this.state.selectedCategory].id + ", " + this.state.newStartValue + ", " + this.state.newGoalValue + ", " + this.state.newStartValue + "); "
         );
       });
       this.props.updateDbData(); 
@@ -86,6 +86,7 @@ export class AddGoal extends Component<AddGoalProps, AddGoalState> {
             selectionColor={"#264653"}
             underlineColor={"#264653"}
             underlineColorAndroid={"#264653"}
+            maxLength={35}
             theme={{
               colors: {
                 placeholder: "#C0C0C0",
