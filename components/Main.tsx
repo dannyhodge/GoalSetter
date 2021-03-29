@@ -11,17 +11,21 @@ import Category from "./Category/Category";
 import { category } from "../types/Category";
 import { goal } from "../types/Goal";
 import { Button, FAB, Portal, Provider, TextInput } from "react-native-paper";
-import * as SQLite from "expo-sqlite";
 import { Dialog } from "react-native-simple-dialogs";
 import AddGoal from "./AddGoal/AddGoal";
 
-const db = SQLite.openDatabase("db.db");
-
 const colours: string[] = ["#2A9D8F", "#E9C46A", "#F4A261", "#E76F51"];
 
-export interface MainState {
-  categories: category[];
+export interface MainProps {
+  year: string;
+  quarter: number;
+  updateDbData: () => void;
+  createCategory: (newCategoryName: string) => void;
   goals: goal[];
+  categories: category[];
+}
+
+export interface MainState {
   fabOpen: boolean;
   screenHeight: number;
   expandedGoal: number | null;
@@ -31,13 +35,11 @@ export interface MainState {
   currentNewCategoryNameExists: boolean;
 }
 
-export class Main extends Component<{}, MainState> {
-  constructor(props: {}) {
+export class Main extends Component<MainProps, MainState> {
+  constructor(props: MainProps) {
     super(props);
 
     this.state = {
-      categories: [],
-      goals: [],
       fabOpen: false,
       screenHeight: 0,
       expandedGoal: null,
@@ -46,7 +48,6 @@ export class Main extends Component<{}, MainState> {
       newCategoryName: undefined,
       currentNewCategoryNameExists: false,
     };
-
   }
 
   onContentSizeChange = (contentWidth: any, contentHeight: any) => {
@@ -61,62 +62,9 @@ export class Main extends Component<{}, MainState> {
     return colours[index % colours.length];
   };
 
-  updateDbData = () => {
-    db.transaction((tx) => {
-      tx.executeSql("select * from categories", [], (_, { rows }) => {
-        var categories: category[] = new Array(rows.length);
-
-        for (var i = 0; i < rows.length; i++) {
-          var category: category = {
-            id: rows.item(i)["id"],
-            title: rows.item(i)["title"],
-            dateAdded: rows.item(i)["dateAdded"],
-          };
-          categories[i] = category;
-        }
-
-        this.setState({
-          categories,
-        });
-      });
-
-      tx.executeSql("select * from goals", [], (_, { rows }) => {
-        var goals: goal[] = new Array(rows.length);
-
-        for (var i = 0; i < rows.length; i++) {
-          var goal: goal = {
-            id: rows.item(i)["id"],
-            title: rows.item(i)["title"],
-            dateAdded: rows.item(i)["dateAdded"],
-            categoryId: rows.item(i)["category_id"],
-            startValue: rows.item(i)["start_value"],
-            endValue: rows.item(i)["end_value"],
-            currentValue: rows.item(i)["current_value"],
-          };
-          goals[i] = goal;
-        }
-        this.setState({
-          goals,
-        });
-      });
-    });
-  };
-  componentDidMount() {
-    db.transaction((tx) => {
-      tx.executeSql(
-        "create table if not exists categories (id integer primary key not null, title text, dateAdded DATETIME);"
-      );
-      tx.executeSql(
-        "create table if not exists goals (id integer primary key not null, title text, dateAdded DATETIME, category_id INTEGER, start_value INTEGER, end_value INTEGER, current_value INTEGER, FOREIGN KEY (category_id) REFERENCES categories (id) ON DELETE CASCADE ON UPDATE NO ACTION);"
-      );
-    });
-
-    this.updateDbData();
-  }
-
   onChangeCategoryText = (text: string) => {
     this.setState({ newCategoryName: text });
-    this.state.categories.forEach((element) => {
+    this.props.categories.forEach((element) => {
       if (element.title == text) {
         this.setState({ currentNewCategoryNameExists: true });
         return;
@@ -128,7 +76,7 @@ export class Main extends Component<{}, MainState> {
 
   changeExpandedGoal = (goalId: number) => {
     this.setState({ expandedGoal: goalId });
-  }
+  };
 
   closeAllOpenMenus = () => {
     this.setState({
@@ -139,27 +87,22 @@ export class Main extends Component<{}, MainState> {
   };
 
   createCategory = () => {
-    if (this.state.newCategoryName != null && !this.state.currentNewCategoryNameExists) {
-      db.transaction((tx) => {
-        tx.executeSql(
-          "INSERT INTO categories (title,dateAdded) VALUES ('" +
-            this.state.newCategoryName +
-            "', DATETIME('now')); "
-        );
-
-        this.updateDbData();
-        this.setState({
-          categoryDialogVisible: false,
-          fabOpen: false,
-          newCategoryName: undefined,
-        });
+    if (
+      this.state.newCategoryName != null &&
+      !this.state.currentNewCategoryNameExists
+    ) {
+      this.props.createCategory(this.state.newCategoryName);
+      this.setState({
+        categoryDialogVisible: false,
+        fabOpen: false,
+        newCategoryName: undefined,
       });
     }
   };
 
   render() {
-    const categories: category[] = this.state.categories;
-    const goals: goal[] = this.state.goals;
+    const categories: category[] = this.props.categories;
+    const goals: goal[] = this.props.goals;
 
     return (
       <SafeAreaView>
@@ -174,13 +117,14 @@ export class Main extends Component<{}, MainState> {
           scrollEnabled={true}
           onContentSizeChange={this.onContentSizeChange}
         >
-          {categories.length > 0 ? (
+          {categories != null && categories.length > 0 ? (
             <View style={{ flex: 1 }}>
               {categories
                 .sort((a, b) => a.dateAdded.valueOf() - b.dateAdded.valueOf())
                 .map((value, index) => {
                   return (
                     <Category
+                      key={index}
                       id={value.id}
                       name={value.title}
                       color={this.getColourCode(index)}
@@ -192,7 +136,7 @@ export class Main extends Component<{}, MainState> {
                         )}
                       closeGoals={this.changeExpandedGoal}
                       expandedGoal={this.state.expandedGoal}
-                      updateDB={this.updateDbData}
+                      updateDB={this.props.updateDbData}
                     />
                   );
                 })}
@@ -225,7 +169,7 @@ export class Main extends Component<{}, MainState> {
               </Text>
             </View>
           )}
-           <View style={{ height: 80, }} />
+          <View style={{ height: 80 }} />
         </ScrollView>
         <Dialog
           titleStyle={{ textAlign: "center" }}
@@ -237,6 +181,7 @@ export class Main extends Component<{}, MainState> {
           <View>
             <View style={{ flexDirection: "row" }}>
               <TextInput
+                accessibilityStates={null}
                 placeholder={"Category name"}
                 style={{
                   height: 35,
@@ -257,6 +202,7 @@ export class Main extends Component<{}, MainState> {
                 }}
               />
               <Button
+                accessibilityStates={null}
                 icon="check"
                 mode="contained"
                 compact={true}
@@ -266,11 +212,16 @@ export class Main extends Component<{}, MainState> {
                 {" "}
               </Button>
             </View>
-            {this.state.currentNewCategoryNameExists === true ? (<Text style={{ paddingTop: 10, color: "red" }}>
-              You have a category with this name
-            </Text>) : <View /> }
-       
+            {this.state.currentNewCategoryNameExists === true ? (
+              <Text style={{ paddingTop: 10, color: "red" }}>
+                You have a category with this name
+              </Text>
+            ) : (
+              <View />
+            )}
+
             <Button
+              accessibilityStates={null}
               mode="text"
               onPress={() =>
                 this.setState({ categoryDialogVisible: false, fabOpen: false })
@@ -290,48 +241,56 @@ export class Main extends Component<{}, MainState> {
           onTouchOutside={() => this.setState({ goalDialogVisible: false })}
         >
           <AddGoal
-            categories={this.state.categories}
-            updateDbData={this.updateDbData}
+            categories={this.props.categories}
+            updateDbData={this.props.updateDbData}
             closeAllOpenMenus={this.closeAllOpenMenus}
           />
         </Dialog>
-        <Provider>
-          <Portal>
-            <FAB.Group
-              color={"white"}
-              visible={true}
-              open={this.state.fabOpen}
-              icon={this.state.fabOpen ? "minus" : "plus"}
-              actions={[
-                {
-                  icon: "plus",
-                  label: "Add Goal",
-                  onPress: () =>
-                    this.setState({
-                      goalDialogVisible:
-                        this.state.categories.length > 0 ? true : false,
-                    }),
-                  style:
-                    this.state.categories.length > 0
-                      ? { backgroundColor: "white" }
-                      : { backgroundColor: "#A0A0A0" },
-                },
-                {
-                  icon: "plus",
-                  label: "Add Category",
-                  onPress: () => {
-                    this.setState({ categoryDialogVisible: true });
+        {this.props.year == "Current" ? (
+          <Provider>
+            <Portal>
+              <FAB.Group
+                color={"white"}
+                visible={true}
+                open={this.state.fabOpen}
+                icon={this.state.fabOpen ? "minus" : "plus"}
+                actions={[
+                  {
+                    icon: "plus",
+                    label: "Add Goal",
+                    onPress: () =>
+                      this.setState({
+                        goalDialogVisible:
+                          this.props.categories != null
+                            ? this.props.categories.length > 0
+                              ? true
+                              : false
+                            : false,
+                      }),
+                    style:
+                      this.props.categories.length > 0
+                        ? { backgroundColor: "white" }
+                        : { backgroundColor: "#A0A0A0" },
                   },
-                },
-              ]}
-              onStateChange={() => {}}
-              onPress={() => {
-                this.setState({ fabOpen: !this.state.fabOpen });
-              }}
-              fabStyle={{ backgroundColor: "#264653" }}
-            />
-          </Portal>
-        </Provider>
+                  {
+                    icon: "plus",
+                    label: "Add Category",
+                    onPress: () => {
+                      this.setState({ categoryDialogVisible: true });
+                    },
+                  },
+                ]}
+                onStateChange={() => {}}
+                onPress={() => {
+                  this.setState({ fabOpen: !this.state.fabOpen });
+                }}
+                fabStyle={{ backgroundColor: "#264653" }}
+              />
+            </Portal>
+          </Provider>
+        ) : (
+          <View />
+        )}
       </SafeAreaView>
     );
   }

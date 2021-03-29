@@ -30,12 +30,15 @@ export class AddGoal extends Component<AddGoalProps, AddGoalState> {
       newGoalName: "",
       newStartValue: "",
       newGoalValue: "",
-      selectedCategoryName: ""
+      selectedCategoryName: "",
     };
   }
 
   setSelectedCategory = (itemValue: string, itemIndex: number) => {
-    this.setState({ selectedCategory: itemIndex, selectedCategoryName: itemValue });
+    this.setState({
+      selectedCategory: itemIndex,
+      selectedCategoryName: itemValue,
+    });
   };
 
   onChangeGoalName = (text: string) => {
@@ -53,27 +56,39 @@ export class AddGoal extends Component<AddGoalProps, AddGoalState> {
   createGoal = () => {
     if (this.state.newGoalName != null) {
       db.transaction((tx) => {
-        var smallestVal = this.state.newStartValue > this.state.newGoalValue ? this.state.newGoalValue : this.state.newStartValue;
+        var smallestVal =
+          this.state.newStartValue > this.state.newGoalValue
+            ? this.state.newGoalValue
+            : this.state.newStartValue;
         tx.executeSql(
           "INSERT INTO goals (title,dateAdded,category_id,start_value,end_value,current_value) VALUES ('" +
             this.state.newGoalName +
-            "', DATETIME('now'), " + this.props.categories[this.state.selectedCategory].id + ", " + this.state.newStartValue + ", " + this.state.newGoalValue + ", " + this.state.newStartValue + "); "
+            "', DATETIME('now'), " +
+            this.props.categories[this.state.selectedCategory].id +
+            ", " +
+            this.state.newStartValue +
+            ", " +
+            this.state.newGoalValue +
+            ", " +
+            this.state.newStartValue +
+            "); "
         );
       });
-      this.props.updateDbData(); 
+      this.props.updateDbData();
       this.props.closeAllOpenMenus();
     }
-  }
+  };
 
   cancelCreate = () => {
     this.props.closeAllOpenMenus();
-  }
+  };
 
   render() {
     return (
       <View>
-        <View style={{ alignSelf: 'center'  }}>
+        <View style={{ alignSelf: "center" }}>
           <TextInput
+            accessibilityStates={null}
             placeholder={"Goal name"}
             style={{
               height: 35,
@@ -95,8 +110,9 @@ export class AddGoal extends Component<AddGoalProps, AddGoalState> {
             }}
           />
         </View>
-        <View style={{ flexDirection: "row", alignSelf: 'center'  }}>
+        <View style={{ flexDirection: "row", alignSelf: "center" }}>
           <TextInput
+            accessibilityStates={null}
             placeholder={"Start"}
             keyboardType="numeric"
             style={{
@@ -118,6 +134,7 @@ export class AddGoal extends Component<AddGoalProps, AddGoalState> {
             }}
           />
           <TextInput
+            accessibilityStates={null}
             placeholder={"Goal"}
             keyboardType="numeric"
             style={{
@@ -145,8 +162,7 @@ export class AddGoal extends Component<AddGoalProps, AddGoalState> {
             onValueChange={(itemValue, itemIndex) =>
               this.setSelectedCategory(itemValue, itemIndex)
             }
-            selectedValue={this.state.selectedCategoryName} 
-        
+            selectedValue={this.state.selectedCategoryName}
           >
             {this.props.categories.map((value, index) => {
               return <Picker.Item label={value.title} value={value.title} />;
@@ -154,23 +170,25 @@ export class AddGoal extends Component<AddGoalProps, AddGoalState> {
           </Picker>
         </View>
 
-        <View style={{ flexDirection: "row", alignSelf: 'center' }}>
+        <View style={{ flexDirection: "row", alignSelf: "center" }}>
           <Button
+            accessibilityStates={null}
             mode="text"
             compact={true}
-            style={{  marginLeft: 7 }}
+            style={{ marginLeft: 7 }}
             onPress={() => this.cancelCreate()}
-            color='#264653'
+            color="#264653"
           >
-          Cancel
+            Cancel
           </Button>
 
           <Button
+            accessibilityStates={null}
             mode="text"
             compact={true}
             style={{ marginLeft: 7 }}
             onPress={() => this.createGoal()}
-            color='#264653'
+            color="#264653"
           >
             Confirm
           </Button>
