@@ -109,6 +109,7 @@ export class Category extends React.Component<CategoryProps, CategoryState> {
           <View style={{ flexDirection: "row", width: '100%' }}>
             <Text style={styles.categoryText}>{this.props.name}</Text>
             <IconButton
+            accessibilityStates={null}
             style={{ marginTop: 2 }}
               icon="delete"
               color={'white'}

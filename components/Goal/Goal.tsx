@@ -134,10 +134,12 @@ export class Goal extends React.Component<GoalProps, GoalState> {
     this.props.goalValue > this.props.startValue
       ? this.setState({ goalValueSorted: this.props.goalValue })
       : this.setState({ goalValueSorted: this.props.startValue });
-
+   
     var range = this.props.goalValue - this.props.startValue;
+
     var actProgress = this.props.currentProgress - this.props.startValue;
-    var perc = actProgress / range / 1;
+
+    var perc = actProgress / range;
 
     this.setState({
       progressPercentage: perc,
@@ -221,6 +223,7 @@ export class Goal extends React.Component<GoalProps, GoalState> {
 
               <View style={{ width: "70%" }}>
                 <ProgressBar
+                accessibilityStates={null}
                   progress={this.state.progressPercentage}
                   visible={true}
                   color={
@@ -235,6 +238,7 @@ export class Goal extends React.Component<GoalProps, GoalState> {
               <Text style={{ marginLeft: 20 }}>{this.props.goalValue}</Text>
               {this.props.currentProgress == this.props.goalValue ? (
                 <IconButton
+                accessibilityStates={null}
                   style={{
                     marginTop: -28,
                     marginLeft: 2,
@@ -255,6 +259,7 @@ export class Goal extends React.Component<GoalProps, GoalState> {
             <View style={styles.ExpandedArea}>
               <View style={{ flexDirection: "row" }}>
                 <TextInput
+                accessibilityStates={null}
                   placeholder={
                     "Progress (was " +
                     this.props.currentProgress.toString() +
@@ -279,6 +284,7 @@ export class Goal extends React.Component<GoalProps, GoalState> {
                   }}
                 />
                 <Button
+                accessibilityStates={null}
                   icon="check"
                   mode="contained"
                   compact={true}
