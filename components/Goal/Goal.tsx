@@ -134,10 +134,12 @@ export class Goal extends React.Component<GoalProps, GoalState> {
     this.props.goalValue > this.props.startValue
       ? this.setState({ goalValueSorted: this.props.goalValue })
       : this.setState({ goalValueSorted: this.props.startValue });
-
+   
     var range = this.props.goalValue - this.props.startValue;
+
     var actProgress = this.props.currentProgress - this.props.startValue;
-    var perc = actProgress / range / 1;
+
+    var perc = actProgress / range;
 
     this.setState({
       progressPercentage: perc,

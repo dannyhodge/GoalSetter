@@ -13,6 +13,7 @@ import { goal } from "../types/Goal";
 import { Button, FAB, Portal, Provider, TextInput } from "react-native-paper";
 import { Dialog } from "react-native-simple-dialogs";
 import AddGoal from "./AddGoal/AddGoal";
+import { Quarters } from "../enums/quarters";
 
 const colours: string[] = ["#2A9D8F", "#E9C46A", "#F4A261", "#E76F51"];
 
@@ -246,7 +247,7 @@ export class Main extends Component<MainProps, MainState> {
             closeAllOpenMenus={this.closeAllOpenMenus}
           />
         </Dialog>
-        {this.props.year == "Current" ? (
+        {this.props.year == "Current" && this.props.quarter == Quarters.NA ? (
           <Provider>
             <Portal>
               <FAB.Group

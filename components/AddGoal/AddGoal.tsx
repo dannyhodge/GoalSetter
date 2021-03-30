@@ -165,7 +165,7 @@ export class AddGoal extends Component<AddGoalProps, AddGoalState> {
             selectedValue={this.state.selectedCategoryName}
           >
             {this.props.categories.map((value, index) => {
-              return <Picker.Item label={value.title} value={value.title} />;
+              return <Picker.Item key={index} label={value.title} value={value.title} />;
             })}
           </Picker>
         </View>

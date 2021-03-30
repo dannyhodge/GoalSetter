@@ -9,6 +9,7 @@ import {
 } from "../../helpers/GetData";
 import { goal } from "../../types/Goal";
 import { category } from "../../types/Category";
+import { Quarters } from "../../enums/quarters";
 
 export interface LastYearProps {
 }
@@ -30,22 +31,22 @@ export class LastYear extends Component<LastYearProps, LastYearState> {
 
   createCategory = (categoryName: string) => {
     createCategory(categoryName);
-    this.updateDbData;
+    this.updateDbData();
   };
 
   updateDbData = () => {
-    updateCategoryData().then((data: any) => {
+    updateCategoryData(new Date().getFullYear()-1).then((data: any) => {
       this.setState({
         categories: data,
       });
     });
 
-    updateGoalData().then((data: any) => {
+    updateGoalData(new Date().getFullYear()-1, Quarters.NA).then((data: any) => {
       this.setState({
         goals: data,
       });
     });
-  };
+  }; 
 
   componentDidMount() {
     createDataFirstTime();

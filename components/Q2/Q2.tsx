@@ -9,6 +9,7 @@ import {
   createDataFirstTime,
 } from "../../helpers/GetData";
 import { category } from "../../types/Category";
+import { Quarters } from "../../enums/quarters";
 
 export interface Q2Props {}
 
@@ -29,17 +30,17 @@ export class Q2 extends Component<Q2Props, Q2State> {
 
   createCategory = (categoryName: string) => {
     createCategory(categoryName);
-    this.updateDbData;
+    this.updateDbData();
   };
 
   updateDbData = () => {
-    updateCategoryData().then((data: any) => {
+    updateCategoryData(new Date().getFullYear()).then((data: any) => {
       this.setState({
         categories: data,
       });
     });
 
-    updateGoalData().then((data: any) => {
+    updateGoalData(new Date().getFullYear(), Quarters.AprilToJun).then((data: any) => {
       this.setState({
         goals: data,
       });

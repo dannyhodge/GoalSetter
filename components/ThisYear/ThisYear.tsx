@@ -10,6 +10,7 @@ import {
 import { goal } from "../../types/Goal";
 import { category } from "../../types/Category";
 import { View } from "react-native";
+import { Quarters } from "../../enums/quarters";
 
 export interface ThisYearProps {}
 
@@ -30,17 +31,17 @@ export class ThisYear extends Component<ThisYearProps, ThisYearState> {
 
   createCategory = (categoryName: string) => {
     createCategory(categoryName);
-    this.updateDbData;
+    this.updateDbData();
   };
 
   updateDbData = () => {
-    updateCategoryData().then((data: any) => {
+    updateCategoryData(new Date().getFullYear()).then((data: any) => {
       this.setState({
         categories: data,
       });
     });
 
-    updateGoalData().then((data: any) => {
+    updateGoalData(new Date().getFullYear(), Quarters.NA).then((data: any) => {
       this.setState({
         goals: data,
       });

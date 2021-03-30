@@ -157,7 +157,6 @@ const DrawerNavigatorConfig = {
     },
   },
   contentOptions: {
-    // add your styling here 
     activeTintColor: '#264653',
     itemsContainerStyle: {
       marginVertical: 0,
@@ -166,7 +165,8 @@ const DrawerNavigatorConfig = {
       opacity: 1,
     },
   },
-  drawerBackgroundColor: 'white', // sets background color of drawer
+  drawerBackgroundColor: 'white',
+  unmountInactiveRoutes: true
 };
 
 const RootDrawerNavigator = createDrawerNavigator({
