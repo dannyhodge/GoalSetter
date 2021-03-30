@@ -179,25 +179,25 @@ const RootDrawerNavigator = createDrawerNavigator({
   JanToMarch: {
     screen: JanToMarchStack,
     navigationOptions: {
-      title: 'January To March',
+      title: ' - January To March',
     },
   },
   AprilToJune: {
     screen: AprilToJuneStack,
     navigationOptions: {
-      title: 'April To June',
+      title: ' - April To June',
     },
   },
   JulyToSept: {
     screen: JulyToSeptStack,
     navigationOptions: {
-      title: 'July To September',
+      title: ' - July To September',
     },
   },
   OctToDec: {
     screen: OctToDecStack,
     navigationOptions: {
-      title: 'October To December',
+      title: ' - October To December',
     },
   },
   Previous: {
