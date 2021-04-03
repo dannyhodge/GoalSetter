@@ -142,7 +142,7 @@ export class Main extends Component<MainProps, MainState> {
                   );
                 })}
             </View>
-          ) : (
+          ) : this.props.year == "Current" ? (
             <View
               style={{ padding: 20, alignContent: "center", paddingTop: 50 }}
             >
@@ -163,13 +163,38 @@ export class Main extends Component<MainProps, MainState> {
                   fontStyle: "italic",
                 }}
               >
-                To get started, press the '+' button in the bottom right of the
-                screen and add a category to group your goals in. Once you've
+                To get started, make sure you're on the current years screen (e.g. 2021 Goals) and press the '+' button in the bottom right of the
+                screen to add a category to group your goals. Once you've
                 done this, you can go ahead and add some goals by clicking on
                 the '+' and clicking 'Add Goal'.
               </Text>
             </View>
-          )}
+          ) : (
+            <View
+              style={{ padding: 20, alignContent: "center", paddingTop: 50 }}
+            >
+              <Text
+                style={{
+                  textAlign: "center",
+                  marginBottom: 20,
+                  fontSize: 16,
+                  fontStyle: "italic",
+                }}
+              >
+               You didn't set any goals last year.
+              </Text>
+              <Text
+                style={{
+                  textAlign: "center",
+                  fontSize: 16,
+                  fontStyle: "italic",
+                }}
+              >
+                Next year, you'll be able to see all your current goals here, so that you don't lose track of it all once the new year ticks over.
+              </Text>
+            </View>
+          ) 
+        }
           <View style={{ height: 80 }} />
         </ScrollView>
         <Dialog

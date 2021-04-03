@@ -8,7 +8,7 @@ const db = SQLite.openDatabase("db.db");
 
 export interface AddGoalProps {
   categories: category[];
-
+  
   updateDbData: () => void;
   closeAllOpenMenus: () => void;
 }
@@ -19,6 +19,10 @@ export interface AddGoalState {
   newGoalName: string;
   newStartValue: string;
   newGoalValue: string;
+  startValueError: boolean;
+  goalValueError: boolean;
+  goalTitleError: boolean;
+  confirmEnabled: boolean;
 }
 
 export class AddGoal extends Component<AddGoalProps, AddGoalState> {
@@ -31,8 +35,36 @@ export class AddGoal extends Component<AddGoalProps, AddGoalState> {
       newStartValue: "",
       newGoalValue: "",
       selectedCategoryName: "",
+      startValueError: false,
+      goalValueError: false,
+      goalTitleError: false,
+      confirmEnabled: false,
     };
   }
+
+  componentDidUpdate = (prevProps: AddGoalProps, prevState: AddGoalState) => {
+    if (
+      prevState.newGoalName != this.state.newGoalName ||
+      prevState.newGoalValue != this.state.newGoalValue ||
+      prevState.newStartValue != this.state.newStartValue
+    ) {
+      this.allValuesCorrect();
+    }
+  };
+
+  allValuesCorrect = () => {
+    if (
+      this.state.newGoalValue.length > 0 &&
+      this.state.newGoalName.length > 0 &&
+      this.state.newStartValue.length > 0 &&
+      this.state.goalValueError == false &&
+      this.state.startValueError == false
+    ) {
+      this.setState({ confirmEnabled: true });
+    } else {
+      this.setState({ confirmEnabled: false });
+    }
+  };
 
   setSelectedCategory = (itemValue: string, itemIndex: number) => {
     this.setState({
@@ -42,24 +74,42 @@ export class AddGoal extends Component<AddGoalProps, AddGoalState> {
   };
 
   onChangeGoalName = (text: string) => {
+    if (text.length == 0) {
+      this.setState({ goalTitleError: true });
+    } else {
+      this.setState({ goalTitleError: false });
+    }
+
     this.setState({ newGoalName: text });
   };
 
   onChangeStartValue = (text: string) => {
+    if (text == this.state.newGoalValue) {
+      this.setState({ startValueError: true, goalValueError: true });
+    } else if (text.length == 0) {
+      this.setState({ startValueError: true });
+    } else {
+      this.setState({ startValueError: false, goalValueError: false });
+    }
+
     this.setState({ newStartValue: text });
   };
 
   onChangeGoalValue = (text: string) => {
+    if (text == this.state.newStartValue) {
+      this.setState({ startValueError: true, goalValueError: true });
+    } else if (text.length == 0) {
+      this.setState({ goalValueError: true });
+    } else {
+      this.setState({ startValueError: false, goalValueError: false });
+    }
+
     this.setState({ newGoalValue: text });
   };
 
   createGoal = () => {
     if (this.state.newGoalName != null) {
       db.transaction((tx) => {
-        var smallestVal =
-          this.state.newStartValue > this.state.newGoalValue
-            ? this.state.newGoalValue
-            : this.state.newStartValue;
         tx.executeSql(
           "INSERT INTO goals (title,dateAdded,category_id,start_value,end_value,current_value) VALUES ('" +
             this.state.newGoalName +
@@ -98,14 +148,16 @@ export class AddGoal extends Component<AddGoalProps, AddGoalState> {
             }}
             onChangeText={(text) => this.onChangeGoalName(text)}
             value={this.state.newGoalName}
-            selectionColor={"#264653"}
-            underlineColor={"#264653"}
-            underlineColorAndroid={"#264653"}
+            selectionColor={this.state.goalTitleError ? "red" : "#264653"}
+            underlineColor={this.state.goalTitleError ? "red" : "#264653"}
+            underlineColorAndroid={
+              this.state.goalTitleError ? "red" : "#264653"
+            }
             maxLength={35}
             theme={{
               colors: {
                 placeholder: "#C0C0C0",
-                primary: "#264653",
+                primary: this.state.goalTitleError ? "red" : "#264653",
               },
             }}
           />
@@ -123,13 +175,16 @@ export class AddGoal extends Component<AddGoalProps, AddGoalState> {
             }}
             onChangeText={(text) => this.onChangeStartValue(text)}
             value={this.state.newStartValue}
-            selectionColor={"#264653"}
-            underlineColor={"#264653"}
-            underlineColorAndroid={"#264653"}
+            selectionColor={this.state.startValueError ? "red" : "#264653"}
+            underlineColor={this.state.startValueError ? "red" : "#264653"}
+            underlineColorAndroid={
+              this.state.startValueError ? "red" : "#264653"
+            }
+            maxLength={4}
             theme={{
               colors: {
                 placeholder: "#C0C0C0",
-                primary: "#264653",
+                primary: this.state.startValueError ? "red" : "#264653",
               },
             }}
           />
@@ -144,13 +199,16 @@ export class AddGoal extends Component<AddGoalProps, AddGoalState> {
             }}
             onChangeText={(text) => this.onChangeGoalValue(text)}
             value={this.state.newGoalValue}
-            selectionColor={"#264653"}
-            underlineColor={"#264653"}
-            underlineColorAndroid={"#264653"}
+            selectionColor={this.state.goalValueError ? "red" : "#264653"}
+            underlineColor={this.state.goalValueError ? "red" : "#264653"}
+            underlineColorAndroid={
+              this.state.goalValueError ? "red" : "#264653"
+            }
+            maxLength={4}
             theme={{
               colors: {
                 placeholder: "#C0C0C0",
-                primary: "#264653",
+                primary: this.state.goalValueError ? "red" : "#264653",
               },
             }}
           />
@@ -165,7 +223,13 @@ export class AddGoal extends Component<AddGoalProps, AddGoalState> {
             selectedValue={this.state.selectedCategoryName}
           >
             {this.props.categories.map((value, index) => {
-              return <Picker.Item key={index} label={value.title} value={value.title} />;
+              return (
+                <Picker.Item
+                  key={index}
+                  label={value.title}
+                  value={value.title}
+                />
+              );
             })}
           </Picker>
         </View>
@@ -183,6 +247,7 @@ export class AddGoal extends Component<AddGoalProps, AddGoalState> {
           </Button>
 
           <Button
+            disabled={!this.state.confirmEnabled}
             accessibilityStates={null}
             mode="text"
             compact={true}

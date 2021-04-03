@@ -71,7 +71,7 @@ export class Goal extends React.Component<GoalProps, GoalState> {
       currentProgressUpdated: undefined,
       dummy: false,
       goalValueSorted: 0,
-      progressSetSmallerThanStartValue: false,
+      progressSetSmallerThanStartValue: true,
     };
   }
 
@@ -124,9 +124,9 @@ export class Goal extends React.Component<GoalProps, GoalState> {
       color: "black",
       fontSize: 18,
       textAlign: "center",
-      height: this.state.expanded ? this.state.progressSetSmallerThanStartValue ? 125 : 160 : 70,
       width: "100%",
-      paddingLeft: 20,
+      padding: 10,
+      paddingTop: 0
     };
   }
 
@@ -219,9 +219,9 @@ export class Goal extends React.Component<GoalProps, GoalState> {
             <Text style={styles.GoalText}>{this.props.title}</Text>
 
             <View style={styles.ProgressRow}>
-              <Text>{this.props.startValue}</Text>
+              <Text style={{ width: "10%", textAlign: 'center' }}>{this.props.startValue}</Text>
 
-              <View style={{ width: "70%" }}>
+              <View style={{ width: "65%" }}>
                 <ProgressBar
                 accessibilityStates={null}
                   progress={this.state.progressPercentage}
@@ -235,11 +235,12 @@ export class Goal extends React.Component<GoalProps, GoalState> {
                 />
               </View>
 
-              <Text style={{ marginLeft: 20 }}>{this.props.goalValue}</Text>
+              <Text style={{ width: "10%", textAlign: 'center', marginLeft: "5%" }}>{this.props.goalValue}</Text>
               {this.props.currentProgress == this.props.goalValue ? (
                 <IconButton
                 accessibilityStates={null}
                   style={{
+                    width: "10%",
                     marginTop: -28,
                     marginLeft: 2,
                     marginBottom: 0,

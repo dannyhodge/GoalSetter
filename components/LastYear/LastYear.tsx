@@ -59,8 +59,8 @@ export class LastYear extends Component<LastYearProps, LastYearState> {
         quarter={0}
         goals={this.state.goals}
         categories={this.state.categories}
-        updateDbData={() => this.updateDbData}
-        createCategory={() => this.createCategory}
+        updateDbData={this.updateDbData}
+        createCategory={this.createCategory}
       />
     );
   }
