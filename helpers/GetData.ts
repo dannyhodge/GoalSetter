@@ -18,8 +18,7 @@ export function createCategory(newCategoryName: string): void {
 export function getStartValue(
   startValue: number,
   endValue: number,
-  quarter: Quarters,
-  title: string
+  quarter: Quarters
 ): number {
   if (quarter == Quarters.NA) return startValue;
 
@@ -34,8 +33,7 @@ export function getStartValue(
 export function getGoalValue(
   endValue: number,
   startValue: number,
-  quarter: Quarters,
-  title: string
+  quarter: Quarters
 ): number {
   if (quarter == Quarters.NA) return endValue;
 
@@ -78,15 +76,13 @@ export async function updateGoalData(
             var startVal = getStartValue(
               rows.item(i)["start_value"],
               rows.item(i)["end_value"],
-              quarter,
-              rows.item(i)["title"]
+              quarter
             );
 
             var endVal = getGoalValue(
               rows.item(i)["end_value"],
               rows.item(i)["start_value"],
-              quarter,
-              rows.item(i)["title"]
+              quarter
             );
 
             var currentVal = getCurrentValue(
@@ -110,6 +106,7 @@ export async function updateGoalData(
           if (outdatedGoals.length > 0) {
             newYearTickedOver();
           }
+          
           resolve(goals);
         }
       );
@@ -145,6 +142,7 @@ export async function updateCategoryData(
             };
             categories[i] = category;
           }
+          
           resolve(categories);
         }
       );

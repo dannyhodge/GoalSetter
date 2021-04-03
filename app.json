@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "GoalSetter",
-    "slug": "GoalSetter",
+    "name": "Progress Yourself",
+    "slug": "progressyourself",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -24,7 +24,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "package": "dannyhodge.expo.goalsetter"
+      "package": "dannyhodge.expo.progressyourself"
     },
     "web": {
       "favicon": "./assets/favicon.png"

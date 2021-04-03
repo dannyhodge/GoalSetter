@@ -32,9 +32,9 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 22,
     textAlign: "center",
-    width: '85%',
+    width: "85%",
     marginTop: 5,
-    paddingLeft: '7.25%'
+    paddingLeft: "7.25%",
   },
 });
 
@@ -56,7 +56,7 @@ export class Category extends React.Component<CategoryProps, CategoryState> {
     return {
       backgroundColor: this.props.color,
       width: "100%",
-      height: 40,
+      height: 42,
       shadowColor: "#000",
       shadowOffset: { width: 0, height: 1 },
       shadowOpacity: 0.25,
@@ -105,14 +105,14 @@ export class Category extends React.Component<CategoryProps, CategoryState> {
   render() {
     return (
       <View style={{ width: "100%" }}>
-        <View style={this.categoryStyle()}>  
-          <View style={{ flexDirection: "row", width: '100%' }}>
+        <View style={this.categoryStyle()}>
+          <View style={{ flexDirection: "row", width: "100%" }}>
             <Text style={styles.categoryText}>{this.props.name}</Text>
             <IconButton
-            accessibilityStates={null}
-            style={{ marginTop: 2 }}
+              accessibilityStates={null}
+              style={{ marginTop: 2 }}
               icon="delete"
-              color={'white'}
+              color={"white"}
               size={26}
               onPress={() => this.deleteCategory()}
             />
@@ -136,8 +136,11 @@ export class Category extends React.Component<CategoryProps, CategoryState> {
           );
         })}
 
-        {this.props.goals.length == 0 ? 
-        <View style={{height: 10, backgroundColor: 'white'}} /> : <View />}
+        {this.props.goals.length == 0 ? (
+          <View style={{ height: 10, backgroundColor: "white" }} />
+        ) : (
+          <View />
+        )}
       </View>
     );
   }
