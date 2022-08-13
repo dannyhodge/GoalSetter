@@ -11,6 +11,7 @@
     "@react-native-community/masked-view": "^0.1.0",
     "@react-navigation/native": "^5.7.3",
     "@react-navigation/stack": "^5.9.0",
+    "@unimodules/react-native-adapter": "^6.3.9",
     "expo": "~40.0.0",
     "expo-sqlite": "~8.5.0",
     "firebase": "7.9.0",
@@ -21,6 +22,7 @@
     "react-native-gesture-handler": "^1.10.3",
     "react-native-paper": "^3.8.0",
     "react-native-popup-dialog": "^0.18.3",
+    "react-native-reanimated": "~1.13.0",
     "react-native-safe-area-context": "~3.1.9",
     "react-native-screens": "^1.0.0-alpha.23",
     "react-native-simple-dialogs": "^1.4.0",
@@ -30,8 +32,7 @@
     "react-navigation-drawer": "^2.7.0",
     "react-navigation-stack": "^2.10.4",
     "react-redux": "^7.2.2",
-    "redux": "^4.0.5",
-    "react-native-reanimated": "~1.13.0"
+    "redux": "^4.0.5"
   },
   "devDependencies": {
     "@babel/core": "~7.9.6",

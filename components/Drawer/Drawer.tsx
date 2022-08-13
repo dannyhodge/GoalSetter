@@ -173,7 +173,7 @@ const RootDrawerNavigator = createDrawerNavigator({
   Current: {
     screen: HomeStack,
     navigationOptions: {
-      title: '2021 Goals',
+      title: currentYearString,
     },
   },
   JanToMarch: {
